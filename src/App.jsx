@@ -8,8 +8,9 @@ function App() {
   const [nextNumber, setNextNumber] = useState(null);
   const [operator, setOperator] = useState('');
   const [newCalc, setNewCalc] = useState(true);
+  const [history, setHistory] = useState([]);
 
-  const operators=['+', '-', '/', '*'];
+  const operators=['+', '-', '/', '*', '%'];
   const digits=[1,2,3,4,5,6,7,8,9,0];
 
   const onDigitPress = (digit) => {
@@ -24,33 +25,55 @@ function App() {
   const onOperatorPress = (operator) => {
     setNewCalc(false);
     setOperator(operator);
-  }
+  };
 
-  const onEqualsPress = () => {
-    setResult((prev) => {
-      switch(operator){
-        case '+': 
-          return prev + nextNumber;
-        case '-': 
-          return prev - nextNumber;
-        case '/': 
-          return prev / nextNumber;
-        case '*': 
-          return prev * nextNumber;
-        default: 
-          return prev;
-      }
-    });
+  const updateHistory= (number) => {
+    setHistory((history)=> [...history, number]);
+  };
+
+  const calcResult = (prev) => {
+    switch(operator){
+      case '+': 
+        return prev + nextNumber;
+      case '-': 
+        return prev - nextNumber;
+      case '/': 
+        return prev / nextNumber;
+      case '*': 
+        return prev * nextNumber;
+      case '%':
+        return prev % nextNumber;
+      default: 
+        return prev;
+  }  
+  }
+  const onEqualsPress = (event) => {
+    const calculatedResult = calcResult(result);
+    setResult(calculatedResult);
     setOperator('');
     setNextNumber(null);
-  }
+    updateHistory(calculatedResult);
+  };
 
   const handleClearPress = () => {
     setResult(null);
-    setNewCalc(true);
+    setNewCalc(true); 
     setNextNumber(null);
     setOperator('');
   }
+
+  const handleInversePress = () => {
+    console.log("here", nextNumber)
+    if (nextNumber != null) {
+          setNextNumber(nextNumber*(-1));
+    } else {
+      setNextNumber(result*(-1));
+    }
+  }
+
+  const renderHistory = history.map((item, index) => 
+    <div key={index}>{item}</div>
+  );
 
   return (
     <>
@@ -75,7 +98,12 @@ function App() {
           }
           <button className="equals-button" onClick={onEqualsPress}>=</button>
           <button className="clear-button" onClick={handleClearPress}>Clear</button>
+          <button className="equals-button" onClick={handleInversePress}>+/-</button>
         </div>
+      </div>
+      <div className='history-container'>
+        <p id="previous">Previous values:</p>
+        {renderHistory}
       </div>
     </>
   )
